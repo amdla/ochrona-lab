@@ -1,0 +1,78 @@
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from PIL import Image
+
+
+def nullpadding(data, length=16):
+    """Dodaje padding, aby długość danych była wielokrotnością 16."""
+    return data + b"\x00" * (length - len(data) % length)
+
+
+def convert_to_RGB(data):
+    """Konwertuje zaszyfrowane dane na format pikseli RGB."""
+    pixels = []
+    for i in range(0, len(data) - 1, 3):
+        r = int(data[i])
+        g = int(data[i + 1])
+        b = int(data[i + 2])
+        pixels.append((r, g, b))
+    return pixels
+
+
+def encrypt_full(input_filename, mode, key):
+    """Szyfruje cały plik BMP w trybach ECB i CBC."""
+    img_in = open(input_filename, "rb")
+    data = img_in.read()
+
+    data_padded = nullpadding(data)
+
+    if mode == "CBC":
+        iv = get_random_bytes(16)
+        aes = AES.new(key, AES.MODE_CBC, iv)
+    elif mode == "ECB":
+        aes = AES.new(key, AES.MODE_ECB)
+
+    encrypted_data = aes.encrypt(data_padded)
+    encrypted_data_unpadded = encrypted_data[:len(data)]
+
+    name = ''.join(input_filename.split('.')[:-1])
+    img_format = str(input_filename.split('.')[-1])
+
+    output_filename = name + '_' + mode + '_encrypted.' + img_format
+
+    img_out = open(output_filename, "wb")
+    img_out.write(encrypted_data_unpadded)
+    img_out.close()
+    img_in.close()
+
+
+def encrypt_data(input_filename, mode, key):
+    """Szyfruje dane obrazu (piksele) w trybach ECB i CBC."""
+    img_in = Image.open(input_filename)
+    data = img_in.convert("RGB").tobytes()
+
+    data_padded = nullpadding(data)
+
+    if mode == "CBC":
+        iv = get_random_bytes(16)
+        aes = AES.new(key, AES.MODE_CBC, iv)
+    elif mode == "ECB":
+        aes = AES.new(key, AES.MODE_ECB)
+
+    encrypted_data = aes.encrypt(data_padded)
+    encrypted_data_unpadded = encrypted_data[:len(data)]
+
+    img_out = Image.new(img_in.mode, img_in.size)
+    img_out.putdata(convert_to_RGB(encrypted_data_unpadded))
+
+    name = ''.join(input_filename.split('.')[:-1])
+    img_format = str(input_filename.split('.')[-1])
+
+    output_filename = name + '_' + mode + '_encrypted.' + img_format
+
+    img_out.save(output_filename, img_format)
+
+
+if __name__ == "__main__":
+    encrypt_data("demo24.bmp", "ECB", b"x" * 16)
+    encrypt_data("demo24.bmp", "CBC", b"x" * 16)
