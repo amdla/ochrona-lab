@@ -1,5 +1,9 @@
-import re
+"""
+to jest zjebane ogolnie
+"""
+
 import hashlib
+import re
 from passlib.hash import sha256_crypt, sha512_crypt, md5_crypt, argon2
 
 # Lista hashy z pliku

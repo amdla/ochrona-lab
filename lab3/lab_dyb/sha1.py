@@ -2,6 +2,9 @@
 znajdz dwa rozne dokumenty, dla ktorych 7 pierwszych znakow hashy sa takie same
 ogolnie jak chcecie miec to lepiej zrobione, to zamiast generate_random_text mozecie zrobic normalnie dodawanie losowych
 literek i wtedy dla kazdej literki sprawdzac czy nowy hash sie zgadza
+
+
+btw to mega wolne jest, lepsze rozwiazanie zad2/hgs.py
 """
 
 import hashlib
