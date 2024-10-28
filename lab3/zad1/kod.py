@@ -12,6 +12,7 @@ hashes = [
     "$1$A/Fz53gT$XaFVcCJGiwMqiEP.Jqfv61",
     "$1$NOj3d3M$sDSgbCpgQK.5ey9mMjFnk/",
     "$argon2id$v=19$m=1654,t=5,p=2$zJnTeg/BmHOOMaYU4hxjDA$wrCvr93+Ba/cl119NAic2lX5usaKCCdlsNVZHsoRmtE"
+
 ]
 
 password = "password"
@@ -35,14 +36,10 @@ def parse_hash(hash_str):
         result['algorithm'] = "SHA-1"
         result['rounds'] = parts[2]
         result['salt'] = parts[3]
-        print(result['salt'])
         result['hash'] = parts[4]
 
-        # Proste użycie hashlib.sha1 bez iteracji
         sha1_input = (result['salt'] + password).encode()
         generated_hash = hashlib.sha1(sha1_input).hexdigest()
-
-        result['generated_hash'] = generated_hash
 
     elif hash_str.startswith("$5$"):  # SHA-256
         parts = hash_str.split('$')
@@ -104,8 +101,6 @@ def parse_hash(hash_str):
     result['generated_hash'] = generated_hash
     return result
 
-
-print("---------------------------------------------------------------------")
 
 for parsed_hash in [parse_hash(h) for h in hashes]:
     print(parsed_hash['algorithm'] + parsed_hash['hash'])
