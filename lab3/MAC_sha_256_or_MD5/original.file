@@ -1,0 +1,3 @@
+Format pliku sum kontrolnych dla plików jest dosyć prosty. Każda linia zawiera MAC i ścieżkę dostępu do pliku np.
+
+0044f6a93aa14142974d45d62eb0636c sciezka/dostepu/do/pliku.xxx

@@ -1,0 +1,1 @@
+Innym zastosowaniem jednokierunkowych funkcji skrótu jest kontrola spójności plików (MAC). Program sha256sum (standardowo dostępny w systemach uniksopodobnych, w systemach BSD jest podobny program sha256) jest właśnie do tego przeznaczony, oblicza sumy kontrolne i może sprawdzić, czy zmieniły się one w stosunku do wcześniej zapisanych.

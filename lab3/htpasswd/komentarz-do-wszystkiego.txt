@@ -1,0 +1,4 @@
+3_pass_1_crackable - sa jakies tam 3 hasla, ale tylko jedno ma tam te 3 znaki do zlamania
+bruteforce - tu sa chyba dwa hasla do zlamania przez bruteforce.py
+single_pass - tu jest jedno haslo do zlamania przez bruteforce.py
+timer_task - to jest do bruteforce_timer.py!!!!!
