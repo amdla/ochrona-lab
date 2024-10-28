@@ -1,6 +1,6 @@
 import re
 import hashlib
-from passlib.hash import bcrypt_sha256, sha256_crypt, sha512_crypt, md5_crypt, argon2
+from passlib.hash import sha256_crypt, sha512_crypt, md5_crypt, argon2
 
 # Lista hashy z pliku
 hashes = [
@@ -29,15 +29,20 @@ def sha1_with_rounds(password, salt, rounds):
 def parse_hash(hash_str):
     result = {}
     generated_hash = ""
+
     if hash_str.startswith("$sha1$"):
-        # SHA1 format: $sha1$rounds$salt$hash
         parts = hash_str.split('$')
         result['algorithm'] = "SHA-1"
         result['rounds'] = parts[2]
         result['salt'] = parts[3]
+        print(result['salt'])
         result['hash'] = parts[4]
-        # Generowanie wartości hasha
-        generated_hash = sha1_with_rounds(password, result['salt'], result['rounds'])
+
+        # Proste użycie hashlib.sha1 bez iteracji
+        sha1_input = (result['salt'] + password).encode()
+        generated_hash = hashlib.sha1(sha1_input).hexdigest()
+
+        result['generated_hash'] = generated_hash
 
     elif hash_str.startswith("$5$"):  # SHA-256
         parts = hash_str.split('$')
@@ -45,7 +50,6 @@ def parse_hash(hash_str):
         result['rounds'] = re.search(r'rounds=(\d+)', parts[2]).group(1)
         result['salt'] = parts[3]
         result['hash'] = parts[4]
-        # Generowanie wartości hasha
         generated_hash = \
             sha256_crypt.using(rounds=int(result['rounds']), salt=result['salt']).hash(password).split('$')[-1]
 
@@ -55,58 +59,54 @@ def parse_hash(hash_str):
         result['rounds'] = re.search(r'rounds=(\d+)', parts[2]).group(1)
         result['salt'] = parts[3]
         result['hash'] = parts[4]
-        # Generowanie wartości hasha
         generated_hash = \
             sha512_crypt.using(rounds=int(result['rounds']), salt=result['salt']).hash(password).split('$')[-1]
 
-    elif hash_str.startswith("$2y$"):  # bcrypt 2y
+    elif hash_str.startswith("$2y$") or hash_str.startswith("$2b$"):  # bcrypt 2y and 2b
+        import bcrypt
         parts = hash_str.split('$')
-        result['algorithm'] = "bcrypt (2y)"
+        result['algorithm'] = "bcrypt (2y)" if hash_str.startswith("$2y$") else "bcrypt (2b)"
         result['cost'] = parts[2]
-        result['salt'] = parts[3][:22]
-        result['hash'] = parts[3][22:]
-        # Generowanie wartości hasha
-        generated_hash = bcrypt_sha256.using(rounds=int(result['cost']), salt=result['salt']).hash(password).split('$')[
-            -1]
+        result['salt'] = parts[3][:22]  # Prawdziwa sól
+        result['hash'] = parts[3][22:]  # Oczekiwany hash wynikowy
 
-    elif hash_str.startswith("$2b$"):  # bcrypt 2b
-        parts = hash_str.split('$')
-        result['algorithm'] = "bcrypt (2b)"
-        result['cost'] = parts[2]
-        result['salt'] = parts[3][:22]
-        result['hash'] = parts[3][22:]
-        # Generowanie wartości hasha
-        generated_hash = bcrypt_sha256.using(rounds=int(result['cost']), salt=result['salt']).hash(password).split('$')[
-            -1]
+        # Utworzenie pełnej soli bcrypt z prefiksem wersji, kosztem i solą
+        bcrypt_salt = f"${'2y' if hash_str.startswith('$2y$') else '2b'}${result['cost']}${result['salt']}".encode()
+
+        # Generowanie bcrypt hash przy użyciu bcrypt.hashpw
+        generated_hash = bcrypt.hashpw(password.encode(), bcrypt_salt).decode().split('$')[-1]
+
 
     elif hash_str.startswith("$1$"):  # MD5
         parts = hash_str.split('$')
         result['algorithm'] = "MD5"
         result['salt'] = parts[2]
         result['hash'] = parts[3]
-        # Generowanie wartości hasha
         generated_hash = md5_crypt.using(salt=result['salt']).hash(password).split('$')[-1]
 
     elif hash_str.startswith("$argon2id$"):  # Argon2id
         parts = hash_str.split('$')
         result['algorithm'] = "Argon2id"
-        # Wyciąganie parametrów dla Argon2id
         result['version'] = parts[2].split('=')[1]
         m_t_p = parts[3].split(',')
         result['memory'] = int(m_t_p[0].split('=')[1])
         result['time'] = int(m_t_p[1].split('=')[1])
         result['parallelism'] = int(m_t_p[2].split('=')[1])
-        result['salt'] = parts[4]
+        result['salt'] = parts[4].encode()
         result['hash'] = parts[5]
-        # Generowanie wartości hasha
-        generated_hash = \
-            argon2.using(memory_cost=result['memory'], time_cost=result['time'], parallelism=result['parallelism'],
-                         salt=result['salt']).hash(password).split('$')[-1]
+        generated_hash = argon2.using(
+            memory_cost=result['memory'],
+            time_cost=result['time'],
+            parallelism=result['parallelism'],
+            salt=result['salt']
+        ).hash(password).split('$')[-1]
 
     result['generated_hash'] = generated_hash
     return result
 
 
-# Przetwarzanie wszystkich hashy
-parsed_hashes = [parse_hash(h) for h in hashes]
-print(parsed_hashes)
+print("---------------------------------------------------------------------")
+
+for parsed_hash in [parse_hash(h) for h in hashes]:
+    print(parsed_hash['algorithm'] + parsed_hash['hash'])
+    print(parsed_hash['algorithm'] + parsed_hash['generated_hash'])
