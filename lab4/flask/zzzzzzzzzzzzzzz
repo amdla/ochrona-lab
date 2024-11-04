@@ -1,0 +1,2 @@
+docker build -t flask_nginx_app .
+docker run -p 80:80 flask_nginx_app
