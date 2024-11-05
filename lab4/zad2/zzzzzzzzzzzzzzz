@@ -1,0 +1,2 @@
+docker build -t zad2 .
+docker run -p 5000:5000 zad2

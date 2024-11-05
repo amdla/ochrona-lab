@@ -1,2 +1,0 @@
-docker build -t flask_nginx_uwsgi .
-docker run -p 5000:5000 flask_nginx_uwsgi

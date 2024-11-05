@@ -1,0 +1,5 @@
+docker build -t zad1 .
+docker run -d -it -p 80:80 zad1
+
+-it dostęp do powłoki
+80:80 to jest -> port 80 na hoście przekierowany na port 80 w kontenerze
