@@ -1,5 +1,6 @@
 from collections import deque
 
+import bleach
 import markdown
 from flask import Flask, render_template, request, make_response
 
@@ -7,6 +8,15 @@ app = Flask(__name__)
 
 notes = []
 recent_users = deque(maxlen=3)
+
+ALLOWED_TAGS = [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'strong', 'em', 'a',
+    'blockquote', 'code', 'pre', 'img', 'br', 'hr'
+]
+ALLOWED_ATTRIBUTES = {
+    'a': ['href', 'title'],
+    'img': ['src', 'alt', 'title']
+}
 
 
 @app.route("/")
@@ -33,7 +43,10 @@ def hello():
 def render():
     md = request.form.get("markdown", "")
     rendered = markdown.markdown(md)
-    notes.append(rendered)
+
+    # safe_rendered = bleach.clean(rendered, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES)
+
+    # notes.append(safe_rendered)
     return render_template("markdown.html", rendered=rendered)
 
 
