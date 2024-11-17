@@ -14,8 +14,10 @@ app.secret_key = "206363ef77d567cc511df5098695d2b85058952afd5e2b1eecd5aed981805e
 
 DATABASE = "./sqlite3.db"
 
+
 class User(UserMixin):
     pass
+
 
 @login_manager.user_loader
 def user_loader(username):
@@ -46,7 +48,8 @@ def request_loader(request):
 
 recent_users = deque(maxlen=3)
 
-@app.route("/", methods=["GET","POST"])
+
+@app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
         return render_template("index.html")
@@ -60,12 +63,14 @@ def login():
             login_user(user)
             return redirect('/hello')
         else:
-            return "Nieprawidłowy login lub hasło", 401
+            return "Nieprawidłowy ---login-- lub hasło", 401
+
 
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect("/")
+
 
 @app.route("/hello", methods=['GET'])
 @login_required
@@ -81,10 +86,11 @@ def hello():
 
         return render_template("hello.html", username=username, notes=notes)
 
+
 @app.route("/render", methods=['POST'])
 @login_required
 def render():
-    md = request.form.get("markdown","")
+    md = request.form.get("markdown", "")
     rendered = markdown.markdown(md)
     username = current_user.id
     db = sqlite3.connect(DATABASE)
@@ -92,6 +98,7 @@ def render():
     sql.execute(f"INSERT INTO notes (username, note) VALUES ('{username}', '{rendered}')")
     db.commit()
     return render_template("markdown.html", rendered=rendered)
+
 
 @app.route("/render/<rendered_id>")
 @login_required
@@ -108,6 +115,7 @@ def render_old(rendered_id):
     except:
         return "Note not found", 404
 
+
 if __name__ == "__main__":
     print("[*] Init database!")
     db = sqlite3.connect(DATABASE)
@@ -115,9 +123,15 @@ if __name__ == "__main__":
     sql.execute("DROP TABLE IF EXISTS user;")
     sql.execute("CREATE TABLE user (username VARCHAR(32), password VARCHAR(128));")
     sql.execute("DELETE FROM user;")
-    sql.execute("INSERT INTO user (username, password) VALUES ('bach', '$5$rounds=535000$ZJ4umOqZwQkWULPh$LwyaABcGgVyOvJwualNZ5/qM4XcxxPpkm9TKh4Zm4w4');")
-    sql.execute("INSERT INTO user (username, password) VALUES ('john', '$5$rounds=535000$AO6WA6YC49CefLFE$dsxygCJDnLn5QNH/V8OBr1/aEjj22ls5zel8gUh4fw9');")
-    sql.execute("INSERT INTO user (username, password) VALUES ('bob', '$5$rounds=535000$.ROSR8G85oGIbzaj$u653w8l1TjlIj4nQkkt3sMYRF7NAhUJ/ZMTdSPyH737');")
+    sql.execute(
+        "INSERT INTO user (username, password) VALUES ('bach', "
+        "'$5$rounds=535000$ZJ4umOqZwQkWULPh$LwyaABcGgVyOvJwualNZ5/qM4XcxxPpkm9TKh4Zm4w4');")
+    sql.execute(
+        "INSERT INTO user (username, password) VALUES ('john', "
+        "'$5$rounds=535000$AO6WA6YC49CefLFE$dsxygCJDnLn5QNH/V8OBr1/aEjj22ls5zel8gUh4fw9');")
+    sql.execute(
+        "INSERT INTO user (username, password) VALUES ('bob', "
+        "'$5$rounds=535000$.ROSR8G85oGIbzaj$u653w8l1TjlIj4nQkkt3sMYRF7NAhUJ/ZMTdSPyH737');")
 
     sql.execute("DROP TABLE IF EXISTS notes;")
     sql.execute("CREATE TABLE notes (id INTEGER PRIMARY KEY, username VARCHAR(32), note VARCHAR(256));")
