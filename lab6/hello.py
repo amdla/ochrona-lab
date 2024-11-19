@@ -26,7 +26,8 @@ def user_loader(username):
 
     db = sqlite3.connect(DATABASE)
     sql = db.cursor()
-    sql.execute(f"SELECT username, password FROM user WHERE username = '{username}'")
+    # sql.execute(f"SELECT username, password FROM user WHERE username = '{username}'")
+    sql.execute("SELECT username, password FROM user WHERE username = ?", (username,))
     row = sql.fetchone()
     try:
         username, password = row
@@ -81,7 +82,8 @@ def hello():
 
         db = sqlite3.connect(DATABASE)
         sql = db.cursor()
-        sql.execute(f"SELECT id FROM notes WHERE username == '{username}'")
+        # sql.execute(f"SELECT id FROM notes WHERE username == '{username}'")
+        sql.execute("SELECT id FROM notes WHERE username == ?", (username,))
         notes = sql.fetchall()
 
         return render_template("hello.html", username=username, notes=notes)
@@ -96,6 +98,7 @@ def render():
     db = sqlite3.connect(DATABASE)
     sql = db.cursor()
     sql.execute(f"INSERT INTO notes (username, note) VALUES ('{username}', '{rendered}')")
+    # sql.execute("INSERT INTO notes (username, note) VALUES (?, ?)", (username, rendered)) #TODO:
     db.commit()
     return render_template("markdown.html", rendered=rendered)
 
@@ -105,7 +108,8 @@ def render():
 def render_old(rendered_id):
     db = sqlite3.connect(DATABASE)
     sql = db.cursor()
-    sql.execute(f"SELECT username, note FROM notes WHERE id == {rendered_id}")
+    # sql.execute(f"SELECT username, note FROM notes WHERE id == {rendered_id}")
+    sql.execute("SELECT username, note FROM notes WHERE id == ?", (rendered_id,))
 
     try:
         username, rendered = sql.fetchone()
