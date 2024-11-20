@@ -1,8 +1,8 @@
-from flask import Flask, request, render_template
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
 import base64
 import os
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
@@ -78,8 +78,8 @@ def key(uid):
 
 if __name__ == "__main__":
     print("[*] Load deadbeef keys...")
-    pubkey_filename = "key.1" # os.getenv("DEADBEEF_KEY_1")
-    privkey_filename = "key.2" # os.getenv("DEADBEEF_KEY_2")
+    pubkey_filename = "key.1"  # os.getenv("DEADBEEF_KEY_1")
+    privkey_filename = "key.2"  # os.getenv("DEADBEEF_KEY_2")
 
     with open(pubkey_filename, 'r') as key_file:
         keys['deadbeef'] = RSA.importKey(key_file.read()).exportKey()
