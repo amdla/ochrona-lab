@@ -1,0 +1,16 @@
+Certyfikacja pełna
+Proces uzyskania certyfikatu podpisanego przez zewnętrzną organizację rozpoczyna się podobnie jak w przypadku
+certyfikatu samopodpisanego - od wygenerowania kluczy. Następnie należy wygenerować prośbę o certyfikat:
+
+#Stworzenie pliku prosby o certyfikacje
+openssl req -new -key testowy.key -out testowy.csr  -config "C:\xampp\apache\bin\openssl.cnf"
+
+#Podglad prosby
+openssl req -noout -text -in testowy.csr -config "C:\xampp\apache\bin\openssl.cnf"
+
+Plik prośby *.csr powinien być przekazany do urzędu certyfikującego (CA). Urząd certyfikujący korzystając ze swojego
+klucza i certyfikatu podpisuje prośbę, która od tego momentu staje się podpisanym certyfikatem. Podpisywanie prośby nie
+jest już jednolinijkowym wywołaniem openssl, a więc wykorzystamy skrypt sign.shSkrypt ten zakłada, że klucz urzędu
+certyfikującego znajduje się w pliku ca.key, a jego certyfikat w pliku ca.crt. Jeśli tak będzie, to jego wywołanie jest proste:
+
+./sign.sh test.csr

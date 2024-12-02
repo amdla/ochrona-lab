@@ -1,0 +1,17 @@
+Ceryfikat samopodpisany
+Do wygenerowania odpowiednich kluczy kryptograficznych i certyfikatów wykorzystamy program openssl.
+
+Zaczynamy od poleceń potrzebnych do wygenerowania klucza:
+
+#Tworzenie klucza RSA
+openssl genrsa -aes256 -out testowy.key
+
+#Podglad klucza
+openssl rsa -noout -text -in testowy.key
+
+Następującym poleceniem stworzymy samopodpisany certyfikat:
+openssl req -new -x509 -days 365 -key testowy.key -out testowy.crt
+openssl req -new -x509 -days 365 -key testowy.key -out testowy.crt -config "C:\xampp\apache\bin\openssl.cnf"
+
+#Podgląd certyfikatu
+openssl x509 -noout -text -in testowy.crt

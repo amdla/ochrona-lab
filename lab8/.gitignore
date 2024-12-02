@@ -1,0 +1,6 @@
+pelny/ca.*
+pelny/*.csr
+pelny/*.key
+samopodpisany/*.crt
+samopodpisany/*.key
+.idea/
